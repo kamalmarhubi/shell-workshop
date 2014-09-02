@@ -30,6 +30,6 @@ int main(int argc, char **argv) {
   /* Not checking the return value is sort of cheeky, but we know execvp will
    * only return if it fails, so we only ever get here if there was an error!
    */
-  fprintf(stderr, "Ooops, something went wrong!");
+  fprintf(stderr, "Ooops, something went wrong!\n");
   return 1;
 }
