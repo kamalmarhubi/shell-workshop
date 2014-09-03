@@ -1,7 +1,7 @@
-all: argv-installer simple-exec simplest-exec
+all: argv-installer simple-exec simplest-exec shell
 
 clean:
-	rm -vf argv-explorer simple-exec simplest-exec
+	rm -vf argv-explorer simple-exec simplest-exec shell
 
 argv-installer: argv-explorer.c
 	gcc -o argv-explorer argv-explorer.c
@@ -11,3 +11,6 @@ simple-exec: simple-exec.c
 
 simplest-exec: simplest-exec.c
 	gcc -o simplest-exec simplest-exec.c
+
+shell: shell.c
+	gcc -o shell shell.c
