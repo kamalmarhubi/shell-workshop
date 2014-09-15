@@ -29,7 +29,7 @@ void print_command(cmd* command) {
   }
 }
 
-cmd* parse_line(char* line) {
+cmd* parse_command(char* line) {
   char* cur_cmd;
   char* copy = strndup(line, MAX_LEN);
   //while((cur_cmd = strsep(&copy, "|"))) {
@@ -51,7 +51,7 @@ int my_exec(char* cmd, char** args) {
   return execvp(cmd, args);
 }
 
-size_t prompt_and_get_input(const char* prompt,
+ssize_t prompt_and_get_input(const char* prompt,
                             char **line,
                             size_t *len) {
   fputs(prompt, stderr);
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
   size_t len = 0;
 
   while(prompt_and_get_input("heeee> ", &line, &len) > 0) {
-    command = parse_line(line);
+    command = parse_command(line);
 
     child_pid = fork();
 
@@ -86,6 +86,7 @@ int main(int argc, char **argv) {
       return 0;
     }
   }
-        return 0;
+  fputs("\n", stderr);
+  return 0;
 
 }
