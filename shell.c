@@ -28,6 +28,7 @@ void print_command(cmd* command) {
     fprintf(stderr, "arg: %s\n", *arg);
   }
 }
+ 
 
 cmd* parse_command(char* line) {
   char* cur_cmd;
@@ -42,7 +43,7 @@ cmd* parse_command(char* line) {
     }
     ret->cmd = ret->args[0];
     ret->_to_free = copy;
-    print_command(ret);
+    //print_command(ret);
   //}
   return ret;
 }
@@ -56,6 +57,16 @@ ssize_t prompt_and_get_input(const char* prompt,
                             size_t *len) {
   fputs(prompt, stderr);
   return getline(line, len, stdin);
+}
+
+int exec_with_redir(cmd* command, int in_fd, int out_fd) {
+  if (in_fd != -1) {
+    dup2(in_fd, STDIN_FILENO);
+  }
+  if (out_fd != -1) {
+    dup2(out_fd, STDOUT_FILENO);
+  }
+  return execvp(command->cmd, command->args);
 }
 
 int main(int argc, char **argv) {
@@ -77,11 +88,9 @@ int main(int argc, char **argv) {
           break;
         default:
           wait(&stat_loc);
-          fprintf(stderr, "All done!\n");
       }
     } else {  // We are the child. */
-      fprintf(stderr, "HI FROM CHILD\n");
-      execvp(command->cmd, command->args);
+      exec_with_redir(command, -1, -1);
       perror("OH DEAR");
       return 0;
     }
