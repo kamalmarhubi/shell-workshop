@@ -1,57 +1,91 @@
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 
+#define MAX_LEN 1024
 #define TOKEN_SEP " \t\n\r"
 
 typedef struct {
   char* cmd;
+  char* _to_free;
   char* args[];
 } cmd;
 
 char* next_non_empty(char **line) {
   char *tok;
-  while ((tok = strsep(line, TOKEN_SEP))
-      && !*tok);
+  while ((tok = strsep(line, TOKEN_SEP)) && !*tok);
 
   return tok;
+}
+
+void print_command(cmd* command) {
+  char** arg = command->args;
+  fprintf(stderr, "cmd: %s\n", command->cmd);
+  fprintf(stderr, "args[0]: %s\n", *arg);
+  while(*arg++) {
+    fprintf(stderr, "arg: %s\n", *arg);
+  }
+}
+
+cmd* parse_line(char* line) {
+  char* cur_cmd;
+  char* copy = strndup(line, MAX_LEN);
+  //while((cur_cmd = strsep(&copy, "|"))) {
+    char* token;
+    int i = 0;
+
+    cmd* ret = calloc(sizeof(cmd) + MAX_LEN * sizeof(char*), 1);
+    while((token = next_non_empty(&copy))) {
+      ret->args[i++] = token;
+    }
+    ret->cmd = ret->args[0];
+    ret->_to_free = copy;
+    print_command(ret);
+  //}
+  return ret;
 }
 
 int my_exec(char* cmd, char** args) {
   return execvp(cmd, args);
 }
 
+size_t prompt_and_get_input(const char* prompt,
+                            char **line,
+                            size_t *len) {
+  fputs(prompt, stderr);
+  return getline(line, len, stdin);
+}
+
 int main(int argc, char **argv) {
   pid_t child_pid;
+  cmd* command;
   int stat_loc = 0;
   char *line = NULL, *cmd = NULL;
-  size_t len = 0;;
-  fprintf(stderr, "heeee> ");
+  size_t len = 0;
 
-  size_t n_chars = getline(&line, &len, stdin);
-  fprintf(stderr, "we read %s\n", line);
+  while(prompt_and_get_input("heeee> ", &line, &len) > 0) {
+    command = parse_line(line);
 
-  while((cmd = next_non_empty(&line))) fprintf(stderr, "GOT AN THING: %s\n", cmd);
-return 0;
-  
-  child_pid = fork();
+    child_pid = fork();
 
-  if (child_pid) {  /* We are the parent. */
-    switch(child_pid) {
-      case -1:
-        fprintf(stderr, "Oh dear.\n");
-        break;
-      default:
-        wait(&stat_loc);
-        fprintf(stderr, "All done!\n");
-        return 0;
+    if (child_pid) {  /* We are the parent. */
+      switch(child_pid) {
+        case -1:
+          fprintf(stderr, "Oh dear.\n");
+          break;
+        default:
+          wait(&stat_loc);
+          fprintf(stderr, "All done!\n");
+      }
+    } else {  // We are the child. */
+      fprintf(stderr, "HI FROM CHILD\n");
+      execvp(command->cmd, command->args);
+      perror("OH DEAR");
+      return 0;
     }
-  } else {  // We are the child. */
-    fprintf(stderr, "HI FROM CHILD\n");
-    char* args[] = {cmd, 0};
-    execvp(cmd, args);
-    fprintf(stderr, "OH DEAR\n");
-    return 0;
   }
+        return 0;
+
 }
