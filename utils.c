@@ -88,6 +88,5 @@ void print_pipeline(pipeline_struct* pipeline) {
   for (i = 0; i < pipeline->n_cmds; ++i) {
     fprintf(stderr, "cmds[%d]:\n", i);
     print_command(cmd[i]);
-    fprintf(stderr, "\n");
   }
 }
