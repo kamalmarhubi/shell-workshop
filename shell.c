@@ -59,23 +59,24 @@ int main(int argc, char **argv) {
     fprintf(stderr, "%s\n", line);
     pipeline_struct* pipeline = parse_pipeline(line);
     print_pipeline(pipeline);
-    return 1;
-    //print_command(command1);
-  //  char* cmd_str2= strsep(&line, "|");
-  //  fprintf(stderr, "%s\n", cmd_str2);
-  //  command2 = parse_command(cmd_str2);
-  //  print_command(command2);
+    int ends[2] = { -1, -1 };
+    command1 = pipeline->cmds[0];
+    if (pipeline->n_cmds == 2) {
+      command2 = pipeline->cmds[1];
 
-  //  int ends[2];
-  //  pipe(ends);
-  //  fprintf(stderr, "in: %d\nout: %d\n", ends[0], ends[1]);
+      pipe(ends);
+      fprintf(stderr, "in: %d\nout: %d\n", ends[0], ends[1]);
+    }
 
-  //  run_with_redir(command1, -1, ends[1]);
-  //  run_with_redir(command2, ends[0], -1);
-  //  close(ends[0]);
-  //  close(ends[1]);
-    run_with_redir(command1, -1, -1);
+    run_with_redir(command1, -1, ends[1]);
+    if (pipeline->n_cmds == 2) {
+      run_with_redir(command2, ends[0], -1);
+      close(ends[0]);
+      close(ends[1]);
+    }
+    //run_with_redir(command1, -1, -1);
     while (wait(NULL) > 0);
+    
   }
   fputs("\n", stderr);
   return 0;
