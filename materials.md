@@ -144,11 +144,53 @@ __Exercise 6.__ Add a `cd` builtin to your shell.
 
 
 ## 6. Pipelines
-The `pipe` system call creates a pair of special files: one read-only the other write-only. Data written to the write end appears at the read end.
 
-The `dup2` system call lets us copy one file descriptor to another
+Next up we're going to implement pipelines. Try running `ls | wc` in your shell. What happens?
 
-TODO
+```
+heeee> ls | wc
+ls: cannot access |: No such file or directory
+ls: cannot access wc: No such file or directory
+```
+
+Right now it doesn't know that `|` has any special meaning, and so tries to list the files `|` and `wc`. Before we fix that, we need to understand better how pipes work.
+
+Files on Unix-like systems are managed using **file descriptors**. If you're using Linux, you can see all the file descriptors for a process using `ls -l /proc/<pid>/fd`. File descriptors are positive integers (`0` is stdin, `1` is stdout, `2` is stderr, and 3 and up are any other files the process has open).
+
+The `pipe` system call creates two new file descriptors with a special property.
+
+```
+int pipe_fds[2];
+pipe(pipe_fds);  // puts returns [4, 5] in pipe_fds
+```
+
+If `pipe` returns `[4, 5]`, then any data written to `5` can be read out of `4`. What this means is that we need to set `ls`'s stdout to be `5` and `wc`'s stdin to be `4`. The way to change which file descriptor a file points to is with the `dup2` system call. In this example, we'd need to run `dup2(5, 1)` for `ls` and `dup2(4, 0)` for `wc`.
+
+To recap, to create a pipe `ls | wc`, we need to:
+
+1. create a pipe with `pipe`. Imagine that this creates file descriptors `4` and `5`.
+2. fork twice (once for `ls` and once for `wc`).
+  ```
+  parent: pid 1000, stdin: terminal, stdout, terminal
+  ---- fork twice ----
+  parent: pid 1000, stdin: terminal, stdout: terminal
+  child 1: pid 2000, stdin: terminal, stdout: terminal (for `ls`)
+  child 2: pid 3000, stdin: terminak, stdout: terminal (for `wc`)
+  ```
+3. In child 1, run `dup2(pipe_fds[1], 1)` and exec `ls`
+4. In child 2, run `dup2(pipe_fds[0], 0)` and exec `wc`
+5. Close both ends of the pipe in the parent process.
+
+That's it!
+
+TODO ps | grep shows up grep
+
+
+**Exercise 7:** Write a `fork_and_exec_with_io(cmd* cmd, int stdout_fd, int stdin_fd)` that forks and execs the specified command and changes its stdin and stdout as needed
+
+**Exercise 8:** Use `fork_and_exec_with_io` to implement pipes with 2 elements.
+
+
 
 ## 7. What next?
 
