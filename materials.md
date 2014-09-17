@@ -221,7 +221,7 @@ In your regular shell, compare the output of `date` and `TZ=Pacific/Samoa date`.
 In `bash`, `export` lets us change an environment variable's value in the shell itself. As with `cd`, because a child cannot modify its parent's environment, `export` must be a builtin.
 
 #### 4. Signal handling
-Compare what happens when you hit `^C` (control-C) between your shell and your regular shell. TODO
+Compare what happens when you hit `^C` (control-C) between your shell and your regular shell. `^C` sends a *signal* to your process, in this case `SIGINT`. Signals interrupt the normal execution of your program. By default, this aborts the process. To prevent that, we can register a signal handler function to be called when `SIGINT` is received, or decide to ignore it.
 
 #### 5. Globbing
 Compare the output of `wc -c *` between your shell and your regular shell. Expanding the wildcard `*` is done by the shell before passing arguments to the child. The `glob` function in the `<glob.h>` standard header will be useful.
