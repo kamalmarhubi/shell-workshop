@@ -7,6 +7,7 @@
 #define MAX_LEN 1024
 #define TOKEN_SEP " \t\n\r"
 
+
 // For internal use. Returns the next non-empty token according to TOKEN_SEPin
 // *line. Returns NULL if no token remains. Updates line to point to remainder
 // after removal of the token.  Modifies the string *line.
@@ -48,7 +49,7 @@ pipeline_struct* parse_pipeline(char *str) {
   pipeline_struct* ret;
 
   // Count pipe characters that appear in pipeline to know how much space to
-  // allocate.
+  // allocate for the cmds array.
   for (char* cur = copy; *cur; cur++) {
     if (*cur == '|') ++n_cmds;
   }
@@ -77,6 +78,7 @@ void print_command(cmd_struct* command) {
   }
 }
 
+
 void print_pipeline(pipeline_struct* pipeline) {
   cmd_struct** cmd = pipeline->cmds;
   int i = 0;
@@ -84,7 +86,8 @@ void print_pipeline(pipeline_struct* pipeline) {
   fprintf(stderr, "n_cmds: %d\n", pipeline->n_cmds);
 
   for (i = 0; i < pipeline->n_cmds; ++i) {
-    fprintf(stderr, "cmds[%d]\n", i);
+    fprintf(stderr, "cmds[%d]:\n", i);
     print_command(cmd[i]);
+    fprintf(stderr, "\n");
   }
 }

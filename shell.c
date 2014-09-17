@@ -59,6 +59,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "%s\n", line);
     pipeline_struct* pipeline = parse_pipeline(line);
     print_pipeline(pipeline);
+    continue;
     int ends[2] = { -1, -1 };
     command1 = pipeline->cmds[0];
     if (pipeline->n_cmds == 2) {
