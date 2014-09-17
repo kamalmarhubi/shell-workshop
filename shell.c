@@ -1,55 +1,13 @@
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
-#define MAX_LEN 1024
-#define TOKEN_SEP " \t\n\r"
+#include "utils.h"
 
-typedef struct {
-  char* cmd;
-  char* _to_free;
-  char* args[];
-} cmd;
-
-char* next_non_empty(char **line) {
-  char *tok;
-  while ((tok = strsep(line, TOKEN_SEP)) && !*tok);
-
-  return tok;
-}
-
-void print_command(cmd* command) {
-  char** arg = command->args;
-  fprintf(stderr, "cmd: %s\n", command->cmd);
-  fprintf(stderr, "args[0]: %s\n", *arg);
-  while(*arg++) {
-    fprintf(stderr, "arg: %s\n", *arg);
-  }
-}
- 
-
-cmd* parse_command(char* line) {
-  char* cur_cmd;
-  char* copy = strndup(line, MAX_LEN);
-  //while((cur_cmd = strsep(&copy, "|"))) {
-    char* token;
-    int i = 0;
-
-    cmd* ret = calloc(sizeof(cmd) + MAX_LEN * sizeof(char*), 1);
-    while((token = next_non_empty(&copy))) {
-      ret->args[i++] = token;
-    }
-    ret->cmd = ret->args[0];
-    ret->_to_free = copy;
-    //print_command(ret);
-  //}
-  return ret;
-}
-
-int my_exec(char* cmd, char** args) {
-  return execvp(cmd, args);
+int my_exec(char* progname, char** args) {
+  return execvp(progname, args);
 }
 
 ssize_t prompt_and_get_input(const char* prompt,
@@ -59,41 +17,64 @@ ssize_t prompt_and_get_input(const char* prompt,
   return getline(line, len, stdin);
 }
 
-int exec_with_redir(cmd* command, int in_fd, int out_fd) {
+int exec_with_redir(cmd_struct* command, int in_fd, int out_fd) {
   if (in_fd != -1) {
     dup2(in_fd, STDIN_FILENO);
+    close(in_fd);
   }
   if (out_fd != -1) {
     dup2(out_fd, STDOUT_FILENO);
+    close(out_fd);
   }
-  return execvp(command->cmd, command->args);
+  return execvp(command->progname, command->args);
+}
+
+pid_t run_with_redir(cmd_struct* command, int in_fd, int out_fd) {
+  pid_t child_pid = fork();
+
+  if (child_pid) {  /* We are the parent. */
+    switch(child_pid) {
+      case -1:
+        fprintf(stderr, "Oh dear.\n");
+        return -1;
+      default:
+        return child_pid;
+    }
+  } else {  // We are the child. */
+    fputs("about to exec!\n", stderr);
+    exec_with_redir(command, in_fd, out_fd);
+    perror("OH DEAR");
+    return 0;
+  }
 }
 
 int main(int argc, char **argv) {
   pid_t child_pid;
-  cmd* command;
+  cmd_struct* command1, *command2;
   int stat_loc = 0;
   char *line = NULL, *cmd = NULL;
   size_t len = 0;
 
   while(prompt_and_get_input("heeee> ", &line, &len) > 0) {
-    command = parse_command(line);
+    char* cmd_str = strsep(&line, "|");
+    fprintf(stderr, "%s\n", cmd_str);
+    command1 = parse_command(cmd_str);
+    print_command(command1);
+  //  char* cmd_str2= strsep(&line, "|");
+  //  fprintf(stderr, "%s\n", cmd_str2);
+  //  command2 = parse_command(cmd_str2);
+  //  print_command(command2);
 
-    child_pid = fork();
+  //  int ends[2];
+  //  pipe(ends);
+  //  fprintf(stderr, "in: %d\nout: %d\n", ends[0], ends[1]);
 
-    if (child_pid) {  /* We are the parent. */
-      switch(child_pid) {
-        case -1:
-          fprintf(stderr, "Oh dear.\n");
-          break;
-        default:
-          wait(&stat_loc);
-      }
-    } else {  // We are the child. */
-      exec_with_redir(command, -1, -1);
-      perror("OH DEAR");
-      return 0;
-    }
+  //  run_with_redir(command1, -1, ends[1]);
+  //  run_with_redir(command2, ends[0], -1);
+  //  close(ends[0]);
+  //  close(ends[1]);
+    run_with_redir(command1, -1, -1);
+    while (wait(NULL) > 0);
   }
   fputs("\n", stderr);
   return 0;
