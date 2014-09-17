@@ -56,10 +56,11 @@ int main(int argc, char **argv) {
   size_t len = 0;
 
   while(prompt_and_get_input("heeee> ", &line, &len) > 0) {
-    char* cmd_str = strsep(&line, "|");
-    fprintf(stderr, "%s\n", cmd_str);
-    command1 = parse_command(cmd_str);
-    print_command(command1);
+    fprintf(stderr, "%s\n", line);
+    pipeline_struct* pipeline = parse_pipeline(line);
+    print_pipeline(pipeline);
+    return 1;
+    //print_command(command1);
   //  char* cmd_str2= strsep(&line, "|");
   //  fprintf(stderr, "%s\n", cmd_str2);
   //  command2 = parse_command(cmd_str2);

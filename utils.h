@@ -25,9 +25,11 @@ typedef struct {
 cmd_struct* parse_command(char* str);
 
 // Parses str into a freshly allocated pipeline_struct and returns a pointer to it.
+// All cmd_structs in cmds will also be freshy allocated.
 pipeline_struct* parse_pipeline(char* str);
 
-// For debugging purposes. Prints out command's progname and args to stderr.
+// For debugging purposes.
 void print_command(cmd_struct* command);
+void print_pipeline(pipeline_struct* pipeline);
 
 #endif  // UTILS_H
