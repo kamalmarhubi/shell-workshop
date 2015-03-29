@@ -9,9 +9,10 @@
 
 
 /*
- * For internal use. Returns the next non-empty token according to TOKEN_SEP in
- * *line. Returns NULL if no token remains. Updates line to point to remainder
- * after removal of the token.  Modifies the string *line.
+ * For internal use. Returns the next non-empty token according in *line,
+ * splitting on characters in TOKEN_SEP. Returns NULL if no token remains.
+ * Updates line to point to remainder after removal of the token.  Modifies the
+ * string *line.
  */
 char* next_non_empty(char **line) {
   char *tok;
