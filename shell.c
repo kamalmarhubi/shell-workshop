@@ -6,7 +6,7 @@
 
 #include "utils.h"
 
-int main(int argc, char **argv) {
+int main() {
   char command[] = "ls -a -l";
   char pipeline[] = "ls -a -l | wc -l";
 

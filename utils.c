@@ -43,7 +43,6 @@ cmd_struct* parse_command(char* str) {
 pipeline_struct* parse_pipeline(char *str) {
   char* copy = strndup(str, MAX_LEN);
   char* cmd_str;
-  cmd_struct* cmd;
   int n_cmds = 0;
   int i = 0;
   pipeline_struct* ret;
