@@ -8,13 +8,15 @@
 #define TOKEN_SEP " \t\n\r"
 
 
-// For internal use. Returns the next non-empty token according to TOKEN_SEPin
-// *line. Returns NULL if no token remains. Updates line to point to remainder
-// after removal of the token.  Modifies the string *line.
+/*
+ * For internal use. Returns the next non-empty token according to TOKEN_SEP in
+ * *line. Returns NULL if no token remains. Updates line to point to remainder
+ * after removal of the token.  Modifies the string *line.
+ */
 char* next_non_empty(char **line) {
   char *tok;
 
-  // Consume empty tokens.
+  /* Consume empty tokens. */
   while ((tok = strsep(line, TOKEN_SEP)) && !*tok);
 
   return tok;
@@ -22,14 +24,16 @@ char* next_non_empty(char **line) {
 
 
 cmd_struct* parse_command(char* str) {
-  // Copy the input line in case the caller wants it later.
+  /* Copy the input line in case the caller wants it later. */
   char* copy = strndup(str, MAX_LEN);
   char* token;
   int i = 0;
 
-  // Being lazy (Rule 0) and allocating way too much memory for the args array.
-  // Using calloc to ensure it's zero-initialised, which is important because
-  // execvp expects a NULL-terminated array of arguments.
+  /*
+   * Being lazy (Rule 0) and allocating way too much memory for the args array.
+   * Using calloc to ensure it's zero-initialised, which is important because
+   * execvp expects a NULL-terminated array of arguments.
+   */
   cmd_struct* ret = calloc(sizeof(cmd_struct) + MAX_LEN * sizeof(char*), 1);
 
   while ((token = next_non_empty(&copy))) {
@@ -47,13 +51,15 @@ pipeline_struct* parse_pipeline(char *str) {
   int i = 0;
   pipeline_struct* ret;
 
-  // Count pipe characters that appear in pipeline to know how much space to
-  // allocate for the cmds array.
+  /*
+   * Count pipe characters that appear in pipeline to know how much space to
+   * allocate for the cmds array.
+   */
   for (char* cur = copy; *cur; cur++) {
     if (*cur == '|') ++n_cmds;
   }
 
-  ++n_cmds;  // There is one more command than there are pipe characters.
+  ++n_cmds;  /* There is one more command than there are pipe characters. */
 
   ret = calloc(sizeof(pipeline_struct) + n_cmds * sizeof(cmd_struct*), 1);
   ret->n_cmds = n_cmds;

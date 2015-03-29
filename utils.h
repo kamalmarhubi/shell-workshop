@@ -40,4 +40,4 @@ pipeline_struct* parse_pipeline(char* str);
 void print_command(cmd_struct* command);
 void print_pipeline(pipeline_struct* pipeline);
 
-#endif  // UTILS_H
+#endif  /* UTILS_H */
