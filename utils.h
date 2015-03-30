@@ -10,6 +10,13 @@
 typedef struct {
   /** The name of the executable. */
   char* progname;
+
+  /**
+   * IO redirections; redirect[i] should be used as fd i in the child.
+   * A value of -1 indicates no redirect.
+   */
+  int redirect[2];
+
   /** The arguments; must be NULL-terminated. */
   char* args[];
 } cmd_struct;
@@ -29,13 +36,15 @@ typedef struct {
 
 /**
  * Parses str into a freshly allocated cmd_struct and returns a pointer to it.
+ * The redirects in the returned cmd_struct will be set to -1, ie no redirect.
  */
 cmd_struct* parse_command(char* str);
 
 
 /**
  * Parses str into a freshly allocated pipeline_struct and returns a pointer to
- * it.  All cmd_structs in cmds will also be freshy allocated.
+ * it.  All cmd_structs in cmds will also be freshy allocated, and have their
+ * redirects set to -1, ie no redirect.
  */
 pipeline_struct* parse_pipeline(char* str);
 

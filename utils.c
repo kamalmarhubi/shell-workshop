@@ -41,6 +41,7 @@ cmd_struct* parse_command(char* str) {
     ret->args[i++] = token;
   }
   ret->progname = ret->args[0];
+  ret->redirect[0] = ret->redirect[1] = -1;
   return ret;
 }
 
