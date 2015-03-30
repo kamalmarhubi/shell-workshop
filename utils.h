@@ -14,6 +14,7 @@ typedef struct {
   char* args[];
 } cmd_struct;
 
+
 /**
  * Struct to represent a pipeline of commands. The intention is that cmd[i]'s
  * output goes to cmd[i+1]'s input.
@@ -25,10 +26,12 @@ typedef struct {
   cmd_struct* cmds[];
 } pipeline_struct;
 
+
 /**
  * Parses str into a freshly allocated cmd_struct and returns a pointer to it.
  */
 cmd_struct* parse_command(char* str);
+
 
 /**
  * Parses str into a freshly allocated pipeline_struct and returns a pointer to
@@ -36,8 +39,10 @@ cmd_struct* parse_command(char* str);
  */
 pipeline_struct* parse_pipeline(char* str);
 
+
 /* For debugging purposes. */
 void print_command(cmd_struct* command);
 void print_pipeline(pipeline_struct* pipeline);
+
 
 #endif  /* UTILS_H */

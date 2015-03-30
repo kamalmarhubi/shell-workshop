@@ -10,12 +10,14 @@ int my_exec(char* progname, char** args) {
   return execvp(progname, args);
 }
 
+
 ssize_t prompt_and_get_input(const char* prompt,
                             char **line,
                             size_t *len) {
   fputs(prompt, stderr);
   return getline(line, len, stdin);
 }
+
 
 int exec_with_redir(cmd_struct* command, int in_fd, int out_fd) {
   if (in_fd != -1) {
@@ -28,6 +30,7 @@ int exec_with_redir(cmd_struct* command, int in_fd, int out_fd) {
   }
   return execvp(command->progname, command->args);
 }
+
 
 pid_t run_with_redir(cmd_struct* command, int in_fd, int out_fd) {
   pid_t child_pid = fork();
@@ -47,6 +50,7 @@ pid_t run_with_redir(cmd_struct* command, int in_fd, int out_fd) {
     return 0;
   }
 }
+
 
 int main() {
   cmd_struct* command1, *command2;
@@ -79,5 +83,4 @@ int main() {
   }
   fputs("\n", stderr);
   return 0;
-
 }
