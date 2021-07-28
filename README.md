@@ -36,7 +36,7 @@ So, let's get started!
 Here's a little snippet to read a line in C into a variable `line`:
 ```
 char *line = NULL;
-int capacity = 0;
+size_t capacity = 0;
 getline(&line, &capacity, stdin);
 ```
 
